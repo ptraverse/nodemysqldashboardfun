@@ -1,5 +1,6 @@
 const faker = require('faker');
 const mysql = require('mysql');
+const moment = require('moment');
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -9,14 +10,25 @@ var connection = mysql.createConnection({
 });
 connection.connect();
 
-var user = faker.internet.userName();
-console.log(user);
-var post = faker.lorem.sentence(); 
+var post = {
+    'user': faker.internet.userName(),
+    'content': faker.lorem.sentence(),
+    'posted_at': moment().format("YYYY-MM-DD HH:mm:ss")
+};
 console.log(post);
- 
-connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-  if (error) throw error;
-  console.log('The solution is: ', results[0].solution);
-});
+
+var insertPost = function(postObj) {
+    var insert = "\
+    INSERT INTO `post` (`user`, `content`, `posted_at`) VALUES \
+    ('" + postObj.user + "', '" + postObj.content + "', '" + postObj.posted_at + "' )";
+    connection.query(insert, function (error, results, fields) {
+        if (error) {
+            throw error;
+        }
+        console.log('Added object!');
+    });
+};
+
+insertPost(post);
  
 connection.end();
